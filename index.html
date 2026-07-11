@@ -5,20 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Services Booking Hub</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Include html2pdf.js for high-fidelity client-side PDF rendering -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
-    <!-- Trust Banner -->
     <div class="trust-banner">
-        <span>Resale/Enterprise Service Matrix</span>
         <span>✓ 100% Police Checked Workers</span>
         <span>✓ Fully Insured & Bonded Services</span>
         <span>✓ Professional Local Care</span>
     </div>
 
-    <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-brand">Service<span>Hub</span></div>
         <div class="nav-links">
@@ -29,10 +24,8 @@
         </div>
     </nav>
 
-    <!-- Main Container -->
     <main class="container">
 
-        <!-- SERVICES SECTION -->
         <section id="services" class="tab-content active">
             <div class="section-header">
                 <h2>Our Premium Services</h2>
@@ -60,7 +53,6 @@
             </div>
         </section>
 
-        <!-- BOOKING AGENT SECTION -->
         <section id="booking" class="tab-content">
             <div class="section-header">
                 <h2>Service Booking Agent</h2>
@@ -68,7 +60,6 @@
             </div>
             <div class="form-wrapper">
                 <form id="bookingForm">
-                    <!-- Hidden input to track if we are updating an existing entry -->
                     <input type="hidden" id="editBookingId" value="">
                     
                     <div class="form-grid">
@@ -143,9 +134,8 @@
                         <div class="calc-row total"><span>Total Estimated Cost:</span><span id="summaryTotal">$0.00</span></div>
                     </div>
 
-                    <!-- Authorization Passcode Gate -->
                     <div class="form-group authorization-gate-box" style="margin-bottom: 24px;">
-                        <label for="formPasscode" style="value-color: var(--color-primary);">System Authorization Passcode</label>
+                        <label for="formPasscode" style="color: var(--color-primary);">System Authorization Passcode</label>
                         <input type="text" id="formPasscode" placeholder="Enter security passcode to authorize assignment" required>
                         <span id="passcodeWarning" class="field-warning"></span>
                     </div>
@@ -158,13 +148,11 @@
             </div>
         </section>
 
-        <!-- SCHEDULE / CALENDAR SECTION -->
         <section id="calendar" class="tab-content">
             <div class="section-header">
                 <h2>Upcoming Fortnight Schedule</h2>
-                <p>Public calendar blocks are visible below. Authenticate with your administrator credentials to view private service details and download exports.</p>
+                <p>Public calendar blocks are visible below. Authenticate with your administrator credentials to view private service details and submit callback operations.</p>
                 
-                <!-- Security Access Gate Matrix -->
                 <div class="schedule-gate-banner" id="scheduleGate">
                     <div class="form-group inline-gate">
                         <label for="schedulePasscode">Unlock Detailed Fortnight View</label>
@@ -177,50 +165,42 @@
                 </div>
             </div>
 
-            <!-- PUBLIC VISUAL CALENDAR BLOCKS TRACKER -->
             <div id="publicCalendarView" class="calendar-blocks-wrapper">
                 <h3>Visual Availability & Blocked Slots</h3>
                 <div class="calendar-timeline-grid" id="publicTimelineBody">
-                    <!-- Loaded dynamically via JS -->
-                </div>
+                    </div>
             </div>
 
-            <!-- SECURE INTERNAL DETAILS ONLY VIEWABLE ON AUTHENTICATION -->
             <div id="secureScheduleContent" class="schedule-wrapper hidden">
                 <div class="secure-banner-indicator">🔓 Secure Record View Decrypted Successfully</div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);" class="no-pdf">
-                    <span style="font-weight: 600; color: var(--color-primary);">Administrative Utilities:</span>
-                    <button id="downloadPdfBtn" class="btn btn-secondary">Download Schedule PDF</button>
+                
+                <div class="callback-action-strip">
+                    <span style="font-weight: 600; color: var(--color-primary);">Urgent Schedule Callback:</span>
+                    <form id="scheduleCallbackForm" class="inline-callback-form">
+                        <input type="tel" id="scheduleCallbackPhone" placeholder="Enter phone for schedule changes..." required>
+                        <button type="submit" class="btn btn-secondary">Request Priority Call</button>
+                    </form>
                 </div>
 
-                <!-- Printable Target Container -->
-                <div id="pdfContent">
-                    <div class="pdf-header-only">
-                        <h1>Upcoming Fortnight Schedule</h1>
-                        <p id="pdfTimestamp"></p>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="schedule-table">
-                            <thead>
-                                <tr>
-                                    <th>Status</th>
-                                    <th>Date/Time</th>
-                                    <th>Client Details</th>
-                                    <th>Service & Resources</th>
-                                    <th>Total Cost</th>
-                                    <th class="no-pdf">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="scheduleBody">
-                                <!-- Populated dynamically via JS -->
+                <div class="table-responsive">
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Date/Time</th>
+                                <th>Client Details</th>
+                                <th>Service & Resources</th>
+                                <th>Total Cost</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleBody">
                             </tbody>
-                        </table>
-                    </div>
+                    </table>
                 </div>
             </div>
         </section>
 
-        <!-- ENQUIRY & QUOTE FORM -->
         <section id="contact" class="tab-content">
             <div class="section-header">
                 <h2>Fixed-Price Quote & Agreement</h2>
@@ -260,9 +240,8 @@
                     <button type="submit" class="btn btn-primary">Generate Binding Quote</button>
                 </form>
 
-                <!-- Rendered Quote Target Print wrapper Box -->
                 <div id="quoteOutput" class="quote-output hidden">
-                    <div class="quote-card" id="quotePdfContent">
+                    <div class="quote-card">
                         <h3>Fixed-Price Quote & Agreement</h3>
                         <p class="quote-meta">Generated on: <span id="quoteOutputDate"></span></p>
                         <hr>
@@ -278,7 +257,14 @@
                             <h4>Agreement Terms</h4>
                             <p>By executing this service arrangement, the customer agrees to provide an environment compliant with occupational safety regulations. Work will be itemized and tracked accurately. Invoices issued upon job completion are terms <strong>strictly 7 days net.</strong> All service delivery personnel hold clean police vetting configurations.</p>
                         </div>
-                        <button type="button" class="btn btn-secondary no-pdf" id="downloadQuotePdfBtn">Download Agreement PDF</button>
+                        
+                        <div class="quote-callback-box">
+                            <h4>Ready to Proceed? Request an Agent Call</h4>
+                            <form id="quoteCallbackForm" class="inline-callback-form">
+                                <input type="tel" id="quoteCallbackPhone" placeholder="Enter contact number..." required>
+                                <button type="submit" class="btn btn-primary">Submit Callback Request</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
