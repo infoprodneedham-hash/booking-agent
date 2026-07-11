@@ -251,7 +251,6 @@ input:focus, select:focus, textarea:focus {
     box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.15);
 }
 
-/* Option element specific context protection */
 select option:disabled {
     color: #ef4444 !important;
     background-color: #1a1315;
@@ -495,10 +494,6 @@ input:checked + .slider::before {
     color: #EF4444;
 }
 
-.pdf-header-only {
-    display: none;
-}
-
 /* ==========================================================================
    9. COMPONENT: BINDING QUOTE VIEWS
    ========================================================================== */
@@ -613,15 +608,7 @@ input:checked + .slider::before {
 }
 
 /* ==========================================================================
-   12. PRINT & COMPILER OUTPUT STRIPPING
-   ========================================================================== */
-@media print {
-    .no-pdf { 
-        display: none !important; 
-    }
-}
-/* ==========================================================================
-   13. SCHEDULE PRIVACY GATE & TIMELINE VISUALIZATIONS
+   12. SCHEDULE PRIVACY GATE & TIMELINE VISUALIZATIONS
    ========================================================================== */
 .schedule-gate-banner {
     background-color: var(--bg-surface);
@@ -716,4 +703,57 @@ input:checked + .slider::before {
     background-color: rgba(5, 242, 199, 0.08);
     color: var(--color-teal);
     border: 1px solid rgba(5, 242, 199, 0.2);
+}
+
+/* ==========================================================================
+   13. CALLBACK MODULE ACTIONS SYSTEM
+   ========================================================================== */
+.callback-action-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-main);
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.inline-callback-form {
+    display: flex;
+    gap: 12px;
+    flex-grow: 1;
+    max-width: 500px;
+}
+
+.inline-callback-form input[type="tel"] {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+.inline-callback-form .btn {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.quote-callback-box {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--border-color);
+}
+
+.quote-callback-box h4 {
+    color: var(--color-primary);
+    font-size: 1rem;
+    margin-bottom: 12px;
+}
+
+@media (max-width: 600px) {
+    .inline-callback-form {
+        flex-direction: column;
+        width: 100%;
+    }
 }
