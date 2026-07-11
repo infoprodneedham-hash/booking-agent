@@ -1,4 +1,6 @@
-// --- Navigation Tab Control Logic ---
+// ==========================================================================
+// 1. NAVIGATION TAB CONTROL LOGIC
+// ==========================================================================
 document.querySelectorAll('.nav-btn').forEach(button => {
     button.addEventListener('click', () => {
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -10,7 +12,9 @@ document.querySelectorAll('.nav-btn').forEach(button => {
     });
 });
 
-// --- Memory Data Management ---
+// ==========================================================================
+// 2. IN-MEMORY DATA STORAGE & SAMPLE SEEDS
+// ==========================================================================
 let schedules = [
     {
         uid: "seed-1",
@@ -48,7 +52,9 @@ function getOffsetDateString(daysAhead) {
     return targetDate.toISOString().split('T')[0];
 }
 
-// --- Dynamic Duration Dropdown Population ---
+// ==========================================================================
+// 3. DYNAMIC DROPDOWN CONFIGURATION GENERATORS
+// ==========================================================================
 function initializeDurationDropdown() {
     const durationSelect = document.getElementById('bookingDuration');
     if (!durationSelect) return;
@@ -59,13 +65,15 @@ function initializeDurationDropdown() {
     }
 }
 
-// Convert "HH:MM" string to a float decimal number
+// Utility: Converts "HH:MM" timestamp strings into a fractional decimal number
 function timeStringToDecimal(timeStr) {
     const [hrs, mins] = timeStr.split(':').map(Number);
     return hrs + (mins / 60);
 }
 
-// --- Smart Conflict Checker & Time Option Generator ---
+// ==========================================================================
+// 4. SMART AVAILABILITY ENGINE (CONFLICT LOCKOUT W/ 1-HOUR PADDING)
+// ==========================================================================
 function updateAvailableTimeSlots() {
     const timeSelect = document.getElementById('bookingTime');
     const dateInput = document.getElementById('bookingDate');
@@ -82,15 +90,15 @@ function updateAvailableTimeSlots() {
 
     if (!selectedDate) return;
 
-    // Filter active bookings for the target day (ignore currently edited item to allow moving time slightly)
+    // Isolate active records for the target calendar date (excluding self if editing)
     const dayBookings = schedules.filter(b => b.date === selectedDate && b.uid !== currentEditingUid);
 
     let standardSlotsAdded = 0;
     let blockedSlotsCount = 0;
 
-    // Iterate through allowed increments between 6 AM and 6 PM
+    // Loop through 30-minute steps across the allowable 6:00 AM to 6:00 PM operational spectrum
     for (let hour = 6; hour <= 18; hour += 0.5) {
-        if (hour === 18) break; // End limits
+        if (hour === 18) break; // Terminate exactly at upper service threshold boundary
 
         const hh = Math.floor(hour);
         const mm = (hour % 1) === 0 ? '00' : '30';
@@ -101,12 +109,12 @@ function updateAvailableTimeSlots() {
 
         let isBlocked = false;
 
-        // Verify window overlap against existing records with a 1-hour buffer allowance
+        // Perform overlapping safety vector evaluation matrix checks
         for (const booking of dayBookings) {
             const bookedStart = timeStringToDecimal(booking.time);
             const bookedEnd = bookedStart + booking.duration;
 
-            // Apply strict 1-hour buffers to boundaries
+            // Expand baseline tracking horizons outward symmetrically by 1.0 hour to act as buffers
             const safeBlockStart = bookedStart - 1.0;
             const safeBlockEnd = bookedEnd + 1.0;
 
@@ -116,7 +124,7 @@ function updateAvailableTimeSlots() {
             }
         }
 
-        // Generate options inside the native selector element
+        // Build option element
         const option = new Option(timeStr, timeStr);
         if (isBlocked) {
             option.disabled = true;
@@ -133,12 +141,14 @@ function updateAvailableTimeSlots() {
     }
 }
 
-// Trigger real-time time re-mapping when layout dates or durations shift
+// Re-evaluate system slots cleanly if changes occur on dependencies
 ['bookingDate', 'bookingDuration'].forEach(id => {
     document.getElementById(id)?.addEventListener('change', updateAvailableTimeSlots);
 });
 
-// --- Cost Calculator System ---
+// ==========================================================================
+// 5. LIVE APPLICATION COST CALCULATION CORE
+// ==========================================================================
 const hourlyRate = 50;
 function calculateCurrentCosts() {
     const workers = parseInt(document.getElementById('workerCount')?.value || 1);
@@ -162,7 +172,9 @@ function calculateCurrentCosts() {
     document.getElementById(id)?.addEventListener('input', calculateCurrentCosts);
 });
 
-// --- Table Row Render Engine ---
+// ==========================================================================
+// 6. SCHEDULE INTERACTIVE RENDER ENGINE (FORTNIGHT MATRICES)
+// ==========================================================================
 function renderFortnightSchedule() {
     const tableBody = document.getElementById('scheduleBody');
     if (!tableBody) return;
@@ -219,7 +231,9 @@ function formatDisplayDate(dateStr) {
     return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
 
-// --- Status Management Operations ---
+// ==========================================================================
+// 7. INLINE STATE AND ACTION WRITERS
+// ==========================================================================
 window.toggleStatus = function(uid) {
     const index = schedules.findIndex(b => b.uid === uid);
     if(index !== -1) {
@@ -240,7 +254,6 @@ window.initiateEditWorkflow = function(uid) {
     const job = schedules.find(b => b.uid === uid);
     if(!job) return;
 
-    // Pop fields into form inputs
     document.getElementById('editBookingId').value = job.uid;
     document.getElementById('clientId').value = job.id;
     document.getElementById('clientName').value = job.name;
@@ -251,16 +264,14 @@ window.initiateEditWorkflow = function(uid) {
     document.getElementById('bookingDate').value = job.date;
     document.getElementById('bookingDuration').value = job.duration;
 
-    // Force context re-checks to prevent visual locks
+    // Regenerate daily time vectors safely before assigning the current value
     updateAvailableTimeSlots();
     document.getElementById('bookingTime').value = job.time;
     calculateCurrentCosts();
 
-    // Toggle button visibility
     document.getElementById('submitBookingBtn').textContent = 'Update Booking Assignment';
     document.getElementById('cancelEditBtn').classList.remove('hidden');
 
-    // Switch navigation tabs smoothly to the booking module
     document.querySelector('[data-target="booking"]').click();
 };
 
@@ -270,20 +281,40 @@ document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
 
 function resetBookingFormState() {
     document.getElementById('bookingForm').reset();
+    
+    // Clear Passcode Verification Flags
+    const passcodeWarning = document.getElementById('passcodeWarning');
+    if (passcodeWarning) passcodeWarning.textContent = '';
+    
     document.getElementById('editBookingId').value = '';
     document.getElementById('submitBookingBtn').textContent = 'Add to Schedule';
     document.getElementById('cancelEditBtn').classList.add('hidden');
     
-    // Fallback date to today
     document.getElementById('bookingDate').value = new Date().toISOString().split('T')[0];
     
     updateAvailableTimeSlots();
     calculateCurrentCosts();
 }
 
-// --- Submit Handler Override ---
+// ==========================================================================
+// 8. FORM SUBMIT CONTROL (PASSCODE INTERACTION GATE)
+// ==========================================================================
 document.getElementById('bookingForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
+
+    const passcodeField = document.getElementById('formPasscode');
+    const passcodeWarning = document.getElementById('passcodeWarning');
+    
+    if (passcodeWarning) passcodeWarning.textContent = '';
+
+    // Passcode Validation Engine Check
+    if (passcodeField && passcodeField.value.trim() !== 'MAST123') {
+        if (passcodeWarning) {
+            passcodeWarning.textContent = 'Invalid Authorization Passcode. Submission locked.';
+        }
+        passcodeField.focus();
+        return; // Terminate execution immediately
+    }
 
     const currentEditingUid = document.getElementById('editBookingId').value;
     const costs = calculateCurrentCosts();
@@ -308,13 +339,11 @@ document.getElementById('bookingForm')?.addEventListener('submit', (e) => {
     };
 
     if (currentEditingUid) {
-        // Find and replace properties inside array structures
         const idx = schedules.findIndex(b => b.uid === currentEditingUid);
         if(idx !== -1) {
             schedules[idx] = { ...schedules[idx], ...compiledData };
         }
     } else {
-        // Append brand new payload model structures
         compiledData.uid = 'uid-' + Date.now();
         compiledData.status = 'incomplete';
         schedules.push(compiledData);
@@ -325,7 +354,9 @@ document.getElementById('bookingForm')?.addEventListener('submit', (e) => {
     document.querySelector('[data-target="calendar"]').click();
 });
 
-// --- Document Generation Logic ---
+// ==========================================================================
+// 9. CLIENT SIDE CLIENT DOCUMENT COMPILE (html2pdf PIPELINE)
+// ==========================================================================
 document.getElementById('downloadPdfBtn')?.addEventListener('click', () => {
     const element = document.getElementById('pdfContent');
     const timestampElement = document.getElementById('pdfTimestamp');
@@ -351,7 +382,9 @@ document.getElementById('downloadPdfBtn')?.addEventListener('click', () => {
     });
 });
 
-// --- Fixed-Price Quote & Agreement Engine ---
+// ==========================================================================
+// 10. FIXED-PRICE QUOTE ENGINE
+// ==========================================================================
 document.getElementById('quoteForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
 
@@ -375,7 +408,9 @@ document.getElementById('quoteForm')?.addEventListener('submit', (e) => {
     document.getElementById('quoteOutput').classList.remove('hidden');
 });
 
-// --- Bootstrapping Lifecycle Hook ---
+// ==========================================================================
+// 11. BOOTSTRAP INITIALIZATION HOOK
+// ==========================================================================
 window.addEventListener('DOMContentLoaded', () => {
     const dateInput = document.getElementById('bookingDate');
     if(dateInput) {
