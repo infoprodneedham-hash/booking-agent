@@ -9,6 +9,11 @@ document.querySelectorAll('.nav-btn').forEach(button => {
         button.classList.add('active');
         const targetTab = button.getAttribute('data-target');
         document.getElementById(targetTab).classList.add('active');
+        
+        // Relock administrative views immediately upon changing view contexts
+        if(targetTab !== 'calendar') {
+            lockScheduleTabSecureData();
+        }
     });
 });
 
@@ -65,7 +70,6 @@ function initializeDurationDropdown() {
     }
 }
 
-// Utility: Converts "HH:MM" timestamp strings into a fractional decimal number
 function timeStringToDecimal(timeStr) {
     const [hrs, mins] = timeStr.split(':').map(Number);
     return hrs + (mins / 60);
@@ -90,15 +94,12 @@ function updateAvailableTimeSlots() {
 
     if (!selectedDate) return;
 
-    // Isolate active records for the target calendar date (excluding self if editing)
     const dayBookings = schedules.filter(b => b.date === selectedDate && b.uid !== currentEditingUid);
-
     let standardSlotsAdded = 0;
     let blockedSlotsCount = 0;
 
-    // Loop through 30-minute steps across the allowable 6:00 AM to 6:00 PM operational spectrum
     for (let hour = 6; hour <= 18; hour += 0.5) {
-        if (hour === 18) break; // Terminate exactly at upper service threshold boundary
+        if (hour === 18) break;
 
         const hh = Math.floor(hour);
         const mm = (hour % 1) === 0 ? '00' : '30';
@@ -109,12 +110,10 @@ function updateAvailableTimeSlots() {
 
         let isBlocked = false;
 
-        // Perform overlapping safety vector evaluation matrix checks
         for (const booking of dayBookings) {
             const bookedStart = timeStringToDecimal(booking.time);
             const bookedEnd = bookedStart + booking.duration;
 
-            // Expand baseline tracking horizons outward symmetrically by 1.0 hour to act as buffers
             const safeBlockStart = bookedStart - 1.0;
             const safeBlockEnd = bookedEnd + 1.0;
 
@@ -124,7 +123,6 @@ function updateAvailableTimeSlots() {
             }
         }
 
-        // Build option element
         const option = new Option(timeStr, timeStr);
         if (isBlocked) {
             option.disabled = true;
@@ -141,7 +139,6 @@ function updateAvailableTimeSlots() {
     }
 }
 
-// Re-evaluate system slots cleanly if changes occur on dependencies
 ['bookingDate', 'bookingDuration'].forEach(id => {
     document.getElementById(id)?.addEventListener('change', updateAvailableTimeSlots);
 });
@@ -173,8 +170,53 @@ function calculateCurrentCosts() {
 });
 
 // ==========================================================================
-// 6. SCHEDULE INTERACTIVE RENDER ENGINE (FORTNIGHT MATRICES)
+// 6. SCHEDULE INTERACTIVE RENDER ENGINE & PUBLIC BLOCKED TIMELINE
 // ==========================================================================
+function renderPublicTimelineBlocks() {
+    const publicTimelineBody = document.getElementById('publicTimelineBody');
+    if (!publicTimelineBody) return;
+
+    publicTimelineBody.innerHTML = '';
+
+    // Generate upcoming 14 structural dates symmetrically loops
+    for (let i = 0; i < 14; i++) {
+        const targetDateStr = getOffsetDateString(i);
+        const dailyJobs = schedules.filter(b => b.date === targetDateStr);
+
+        const row = document.createElement('div');
+        row.className = 'timeline-day-row';
+
+        const label = document.createElement('div');
+        label.className = 'timeline-day-label';
+        label.textContent = formatDisplayDate(targetDateStr);
+        row.appendChild(label);
+
+        const blocksStrip = document.createElement('div');
+        blocksStrip.className = 'timeline-blocks-strip';
+
+        if (dailyJobs.length === 0) {
+            blocksStrip.innerHTML = `<span class="timeline-block-tag clear">Entire Day Available</span>`;
+        } else {
+            // Sort segments sequentially across time
+            dailyJobs.sort((a,b) => timeStringToDecimal(a.time) - timeStringToDecimal(b.time));
+            dailyJobs.forEach(job => {
+                const startTimeDec = timeStringToDecimal(job.time);
+                const endTimeDec = startTimeDec + job.duration;
+
+                // Map fractional hours cleanly back to human readouts for public display
+                const endHh = Math.floor(endTimeDec);
+                const endMm = (endTimeDec % 1) === 0 ? '00' : '30';
+                const calculatedEndTimeStr = `${endHh < 10 ? '0' + endHh : endHh}:${endMm}`;
+
+                blocksStrip.innerHTML += `<span class="timeline-block-tag">🔒 Blocked: ${job.time} - ${calculatedEndTimeStr}</span>`;
+            });
+        }
+
+        row.appendChild(blocksStrip);
+        publicTimelineBody.appendChild(row);
+    }
+}
+
 function renderFortnightSchedule() {
     const tableBody = document.getElementById('scheduleBody');
     if (!tableBody) return;
@@ -197,9 +239,7 @@ function renderFortnightSchedule() {
 
     tableBody.innerHTML = activeFortnightBookings.map(item => `
         <tr id="row-${item.uid}">
-            <td>
-                <span class="status-badge ${item.status}">${item.status}</span>
-            </td>
+            <td><span class="status-badge ${item.status}">${item.status}</span></td>
             <td>
                 <div style="font-weight:600;">${formatDisplayDate(item.date)}</div>
                 <div style="font-size:0.85rem; color:var(--color-primary);">${item.time} (${item.duration} hrs)</div>
@@ -212,9 +252,7 @@ function renderFortnightSchedule() {
                 <div style="font-weight:500;">${item.service}</div>
                 <div style="font-size:0.85rem; color:var(--text-muted);">${item.workers} Worker(s)</div>
             </td>
-            <td>
-                <div style="font-weight:600; color:var(--color-teal);">$${item.total.toFixed(2)}</div>
-            </td>
+            <td><div style="font-weight:600; color:var(--color-teal);">$${item.total.toFixed(2)}</div></td>
             <td class="no-pdf">
                 <div class="action-cell">
                     ${item.status === 'incomplete' ? `<button class="btn-table complete-trigger" onclick="toggleStatus('${item.uid}')">Complete</button>` : ''}
@@ -232,7 +270,37 @@ function formatDisplayDate(dateStr) {
 }
 
 // ==========================================================================
-// 7. INLINE STATE AND ACTION WRITERS
+// 7. PRIVACY LOCK/UNLOCK HANDLERS FOR THE SCHEDULE VIEW
+// ==========================================================================
+document.getElementById('unlockScheduleBtn')?.addEventListener('click', () => {
+    const passcodeField = document.getElementById('schedulePasscode');
+    const warningLabel = document.getElementById('schedulePasscodeWarning');
+    const secureContent = document.getElementById('secureScheduleContent');
+    const scheduleGate = document.getElementById('scheduleGate');
+
+    if(warningLabel) warningLabel.textContent = '';
+
+    if(passcodeField && passcodeField.value.trim() === 'MAST123') {
+        secureContent.classList.remove('hidden');
+        scheduleGate.classList.add('hidden');
+        passcodeField.value = '';
+        renderFortnightSchedule();
+    } else {
+        if(warningLabel) warningLabel.textContent = 'Invalid Passcode. Access to private details denied.';
+    }
+});
+
+function lockScheduleTabSecureData() {
+    document.getElementById('secureScheduleContent')?.classList.add('hidden');
+    document.getElementById('scheduleGate')?.classList.remove('hidden');
+    const warning = document.getElementById('schedulePasscodeWarning');
+    if(warning) warning.textContent = '';
+    const input = document.getElementById('schedulePasscode');
+    if(input) input.value = '';
+}
+
+// ==========================================================================
+// 8. INLINE STATE AND ACTION WRITERS
 // ==========================================================================
 window.toggleStatus = function(uid) {
     const index = schedules.findIndex(b => b.uid === uid);
@@ -246,6 +314,7 @@ window.deleteJobRecord = function(uid) {
     if(confirm('Are you sure you want to cancel this booking assignment?')) {
         schedules = schedules.filter(b => b.uid !== uid);
         renderFortnightSchedule();
+        renderPublicTimelineBlocks();
         updateAvailableTimeSlots();
     }
 };
@@ -264,7 +333,6 @@ window.initiateEditWorkflow = function(uid) {
     document.getElementById('bookingDate').value = job.date;
     document.getElementById('bookingDuration').value = job.duration;
 
-    // Regenerate daily time vectors safely before assigning the current value
     updateAvailableTimeSlots();
     document.getElementById('bookingTime').value = job.time;
     calculateCurrentCosts();
@@ -281,15 +349,12 @@ document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
 
 function resetBookingFormState() {
     document.getElementById('bookingForm').reset();
-    
-    // Clear Passcode Verification Flags
     const passcodeWarning = document.getElementById('passcodeWarning');
     if (passcodeWarning) passcodeWarning.textContent = '';
     
     document.getElementById('editBookingId').value = '';
     document.getElementById('submitBookingBtn').textContent = 'Add to Schedule';
     document.getElementById('cancelEditBtn').classList.add('hidden');
-    
     document.getElementById('bookingDate').value = new Date().toISOString().split('T')[0];
     
     updateAvailableTimeSlots();
@@ -297,7 +362,7 @@ function resetBookingFormState() {
 }
 
 // ==========================================================================
-// 8. FORM SUBMIT CONTROL (PASSCODE INTERACTION GATE)
+// 9. FORM SUBMIT CONTROL (PASSCODE INTERACTION GATE)
 // ==========================================================================
 document.getElementById('bookingForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -307,13 +372,10 @@ document.getElementById('bookingForm')?.addEventListener('submit', (e) => {
     
     if (passcodeWarning) passcodeWarning.textContent = '';
 
-    // Passcode Validation Engine Check
     if (passcodeField && passcodeField.value.trim() !== 'MAST123') {
-        if (passcodeWarning) {
-            passcodeWarning.textContent = 'Invalid Authorization Passcode. Submission locked.';
-        }
+        if (passcodeWarning) passcodeWarning.textContent = 'Invalid Authorization Passcode. Submission locked.';
         passcodeField.focus();
-        return; // Terminate execution immediately
+        return;
     }
 
     const currentEditingUid = document.getElementById('editBookingId').value;
@@ -350,12 +412,18 @@ document.getElementById('bookingForm')?.addEventListener('submit', (e) => {
     }
 
     resetBookingFormState();
+    renderPublicTimelineBlocks();
+    
+    // Explicitly bypass lock state to let coordinators see the results immediately
+    document.getElementById('secureScheduleContent').classList.remove('hidden');
+    document.getElementById('scheduleGate').classList.add('hidden');
     renderFortnightSchedule();
+
     document.querySelector('[data-target="calendar"]').click();
 });
 
 // ==========================================================================
-// 9. CLIENT SIDE CLIENT DOCUMENT COMPILE (html2pdf PIPELINE)
+// 10. CLIENT SIDE DOCUMENT COMPILE (html2pdf PIPELINE)
 // ==========================================================================
 document.getElementById('downloadPdfBtn')?.addEventListener('click', () => {
     const element = document.getElementById('pdfContent');
@@ -383,7 +451,7 @@ document.getElementById('downloadPdfBtn')?.addEventListener('click', () => {
 });
 
 // ==========================================================================
-// 10. FIXED-PRICE QUOTE ENGINE
+// 11. FIXED-PRICE QUOTE ENGINE
 // ==========================================================================
 document.getElementById('quoteForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -409,7 +477,7 @@ document.getElementById('quoteForm')?.addEventListener('submit', (e) => {
 });
 
 // ==========================================================================
-// 11. BOOTSTRAP INITIALIZATION HOOK
+// 12. BOOTSTRAP INITIALIZATION HOOK
 // ==========================================================================
 window.addEventListener('DOMContentLoaded', () => {
     const dateInput = document.getElementById('bookingDate');
@@ -421,5 +489,5 @@ window.addEventListener('DOMContentLoaded', () => {
     initializeDurationDropdown();
     updateAvailableTimeSlots();
     calculateCurrentCosts();
-    renderFortnightSchedule();
+    renderPublicTimelineBlocks();
 });
