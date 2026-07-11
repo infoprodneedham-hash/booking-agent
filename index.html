@@ -57,10 +57,12 @@
         <section id="booking" class="tab-content">
             <div class="section-header">
                 <h2>Service Booking Agent</h2>
-                <p>Configure your service requirements below to lock in a professional worker.</p>
+                <p>Configure your service requirements below. Conflicts are dynamically blocked with a 1-hour buffer.</p>
             </div>
             <div class="form-wrapper">
                 <form id="bookingForm">
+                    <input type="hidden" id="editBookingId" value="">
+                    
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="clientId">Customer ID</label>
@@ -93,7 +95,7 @@
                         </div>
                         <div class="form-group">
                             <label for="workerCount">Number of Workers</label>
-                            <select id="workerCount" id="workerCount">
+                            <select id="workerCount">
                                 <option value="1">1 Worker ($50/hr)</option>
                                 <option value="2">2 Workers ($100/hr)</option>
                             </select>
@@ -103,12 +105,13 @@
                             <input type="date" id="bookingDate" required>
                         </div>
                         <div class="form-group">
-                            <label for="bookingTime">Start Time (6 AM - 6 PM)</label>
-                            <select id="bookingTime" required></select>
-                        </div>
-                        <div class="form-group">
                             <label for="bookingDuration">Duration (Hours)</label>
                             <select id="bookingDuration" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookingTime">Start Time</label>
+                            <select id="bookingTime" required></select>
+                            <span id="timeWarning" class="field-warning"></span>
                         </div>
                         <div class="form-group">
                             <label for="materialsCost">Additional Materials Cost ($)</label>
@@ -132,7 +135,10 @@
                         <div class="calc-row total"><span>Total Estimated Cost:</span><span id="summaryTotal">$0.00</span></div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Add to Schedule</button>
+                    <div class="form-actions">
+                        <button type="submit" id="submitBookingBtn" class="btn btn-primary">Add to Schedule</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary hidden">Cancel Edit</button>
+                    </div>
                 </form>
             </div>
         </section>
@@ -153,10 +159,12 @@
                     <table class="schedule-table">
                         <thead>
                             <tr>
+                                <th>Status</th>
                                 <th>Date/Time</th>
                                 <th>Client Details</th>
                                 <th>Service & Resources</th>
                                 <th>Total Cost</th>
+                                <th class="no-pdf">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="scheduleBody">
@@ -225,7 +233,6 @@
                         <button type="button" class="btn btn-secondary" onclick="window.print()">Print Agreement</button>
                     </div>
                 </div>
-
             </div>
         </section>
 
