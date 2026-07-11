@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Services Booking Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+    <div class="trust-banner">
+        <span>✓ 100% Police Checked Workers</span>
+        <span>✓ Fully Insured & Bonded Services</span>
+        <span>✓ Professional Local Care</span>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-brand">Service<span>Hub</span></div>
+        <div class="nav-links">
+            <button class="nav-btn active" data-target="services">Services</button>
+            <button class="nav-btn" data-target="booking">Booking Agent</button>
+            <button class="nav-btn" data-target="calendar">Fortnight Schedule</button>
+            <button class="nav-btn" data-target="contact">Enquiry & Quote</button>
+        </div>
+    </nav>
+
+    <main class="container">
+
+        <section id="services" class="tab-content active">
+            <div class="section-header">
+                <h2>Our Premium Services</h2>
+                <p>Select from our widely vetted capabilities tailored to your daily needs.</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card"><h3>Indoor & Outdoor Cleaning</h3><p>Deep cleaning, vacuuming, dusting, window washing, and outdoor patio sweeping.</p></div>
+                <div class="service-card"><h3>Garden Maintenance</h3><p>Lawn mowing, weeding, pruning, hedging, and green waste management.</p></div>
+                <div class="service-card"><h3>Meal Preparation</h3><p>Custom nutritional meal planning, batch cooking, and sanitary kitchen cleanup.</p></div>
+                <div class="service-card"><h3>Repairs & Maintenance</h3><p>Minor household handyperson tasks, fixing fixtures, and preventative repairs.</p></div>
+                <div class="service-card"><h3>Transport Services</h3><p>Safe transport to medical appointments, social engagements, and local outings.</p></div>
+                <div class="service-card"><h3>Grocery Shopping</h3><p>Guided or independent errand runs, grocery sourcing, and pantry stocking.</p></div>
+                <div class="service-card"><h3>Pet Minding & Care</h3><p>Walking, feeding, basic washing, and dedicated companion care for domestic pets.</p></div>
+                <div class="service-card"><h3>Tech Support</h3><p>Wi-Fi troubleshooting, smart device setup, software updates, and basic device tutorials.</p></div>
+            </div>
+
+            <div class="terms-box">
+                <h3>Terms & Conditions</h3>
+                <p><strong>Payment Terms:</strong> All invoices are strictly to be paid within <strong>7 days</strong> of service completion.</p>
+                <h4>Scope of Rights & Responsibilities</h4>
+                <ul>
+                    <li><strong>Customer:</strong> Has the right to a clean, safe, respectful service matching their booking specifications. Responsibilities include providing a hazard-free work environment, access to necessary property utilities, and accurate information regarding support requirements.</li>
+                    <li><strong>Worker:</strong> Has the right to work in a safe environment free from harassment or unsafe structural elements. Responsibilities include punctuality, adhering to professional standards, following safety guidelines, and executing tasks efficiently as specified in the service agreement.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="booking" class="tab-content">
+            <div class="section-header">
+                <h2>Service Booking Agent</h2>
+                <p>Configure your service requirements below to lock in a professional worker.</p>
+            </div>
+            <div class="form-wrapper">
+                <form id="bookingForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="clientId">Customer ID</label>
+                            <input type="text" id="clientId" placeholder="e.g. CUST-883" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientName">Full Name</label>
+                            <input type="text" id="clientName" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientEmail">Email Address</label>
+                            <input type="email" id="clientEmail" placeholder="john@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientPhone">Phone Number</label>
+                            <input type="tel" id="clientPhone" placeholder="0400 000 000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="serviceType">Select Service</label>
+                            <select id="serviceType" required>
+                                <option value="Indoor & Outdoor Cleaning">Indoor & Outdoor Cleaning</option>
+                                <option value="Garden Maintenance">Garden Maintenance</option>
+                                <option value="Meal Preparation">Meal Preparation</option>
+                                <option value="Repairs & Maintenance">Repairs & Maintenance</option>
+                                <option value="Transport">Transport</option>
+                                <option value="Grocery Shopping">Grocery Shopping</option>
+                                <option value="Pet Care & Walking">Pet Care & Walking/Wash</option>
+                                <option value="Tech Support">Tech Support</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="workerCount">Number of Workers</label>
+                            <select id="workerCount" id="workerCount">
+                                <option value="1">1 Worker ($50/hr)</option>
+                                <option value="2">2 Workers ($100/hr)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookingDate">Date</label>
+                            <input type="date" id="bookingDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookingTime">Start Time (6 AM - 6 PM)</label>
+                            <select id="bookingTime" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookingDuration">Duration (Hours)</label>
+                            <select id="bookingDuration" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="materialsCost">Additional Materials Cost ($)</label>
+                            <input type="number" id="materialsCost" min="0" value="0" step="0.01">
+                        </div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <label class="switch-container">
+                            <input type="checkbox" id="includeGst" checked>
+                            <span class="slider"></span>
+                            Apply 10% GST
+                        </label>
+                    </div>
+
+                    <div class="calculator-box">
+                        <h3>Cost Summary</h3>
+                        <div class="calc-row"><span>Base Rate Split:</span><span id="summaryBase">$0.00</span></div>
+                        <div class="calc-row"><span>Materials:</span><span id="summaryMaterials">$0.00</span></div>
+                        <div class="calc-row"><span>GST Component:</span><span id="summaryGst">$0.00</span></div>
+                        <div class="calc-row total"><span>Total Estimated Cost:</span><span id="summaryTotal">$0.00</span></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Add to Schedule</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="calendar" class="tab-content">
+            <div class="section-header">
+                <h2>Upcoming Fortnight Schedule</h2>
+                <p>View your confirmed bookings for the next 14 days based on the current system date.</p>
+                <button id="downloadPdfBtn" class="btn btn-secondary">Download Schedule PDF</button>
+            </div>
+
+            <div id="pdfContent" class="schedule-wrapper">
+                <div class="pdf-header-only">
+                    <h1>Upcoming Fortnight Schedule</h1>
+                    <p id="pdfTimestamp"></p>
+                </div>
+                <div class="table-responsive">
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Date/Time</th>
+                                <th>Client Details</th>
+                                <th>Service & Resources</th>
+                                <th>Total Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="tab-content">
+            <div class="section-header">
+                <h2>Fixed-Price Quote & Agreement</h2>
+                <p>Generate an official static service arrangement and cost summary instantly.</p>
+            </div>
+            <div class="form-wrapper">
+                <form id="quoteForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="quoteName">Full Name</label>
+                            <input type="text" id="quoteName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quoteEmail">Email Address</label>
+                            <input type="email" id="quoteEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quoteService">Requested Service Scope</label>
+                            <select id="quoteService" required>
+                                <option value="Indoor & Outdoor Cleaning">Indoor & Outdoor Cleaning</option>
+                                <option value="Garden Maintenance">Garden Maintenance</option>
+                                <option value="Meal Preparation">Meal Preparation</option>
+                                <option value="Repairs & Maintenance">Repairs & Maintenance</option>
+                                <option value="Transport & Errands">Transport & Shopping</option>
+                                <option value="Tech Support">Tech Support</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quoteHours">Estimated Total Project Hours</label>
+                            <input type="number" id="quoteHours" min="0.5" step="0.5" value="2" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="quoteNotes">Service Requirements / Description</label>
+                        <textarea id="quoteNotes" rows="4" placeholder="Describe the specific jobs needed..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generate Binding Quote</button>
+                </form>
+
+                <div id="quoteOutput" class="quote-output hidden">
+                    <div class="quote-card">
+                        <h3>Fixed-Price Quote & Agreement</h3>
+                        <p class="quote-meta">Generated on: <span id="quoteOutputDate"></span></p>
+                        <hr>
+                        <p><strong>Prepared For:</strong> <span id="quoteOutputName"></span> (<span id="quoteOutputEmail"></span>)</p>
+                        <p><strong>Service Focus:</strong> <span id="quoteOutputService"></span></p>
+                        <p><strong>Description:</strong> <span id="quoteOutputNotes"></span></p>
+                        <hr>
+                        <div class="quote-pricing">
+                            <p>Calculated Total Work Value: <span id="quoteOutputPrice"></span></p>
+                            <p class="small-text">Includes basic operational risk margins, worker safety assignment assets, and liability insurance safeguards.</p>
+                        </div>
+                        <div class="quote-terms">
+                            <h4>Agreement Terms</h4>
+                            <p>By executing this service arrangement, the customer agrees to provide an environment compliant with occupational safety regulations. Work will be itemized and tracked accurately. Invoices issued upon job completion are terms <strong>strictly 7 days net.</strong> All service delivery personnel hold clean police vetting configurations.</p>
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="window.print()">Print Agreement</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
