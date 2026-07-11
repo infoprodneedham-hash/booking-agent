@@ -620,3 +620,100 @@ input:checked + .slider::before {
         display: none !important; 
     }
 }
+/* ==========================================================================
+   13. SCHEDULE PRIVACY GATE & TIMELINE VISUALIZATIONS
+   ========================================================================== */
+.schedule-gate-banner {
+    background-color: var(--bg-surface);
+    border: 1px dashed var(--border-color);
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+.input-action-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.input-action-group input {
+    max-width: 400px;
+}
+
+.secure-banner-indicator {
+    background-color: rgba(16, 185, 129, 0.1);
+    border: 1px solid var(--color-teal);
+    color: var(--color-teal);
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    letter-spacing: 0.5px;
+}
+
+/* --- Public Blocked Calendar Visual Timeline --- */
+.calendar-blocks-wrapper {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 30px;
+}
+
+.calendar-blocks-wrapper h3 {
+    font-size: 1.1rem;
+    color: var(--text-main);
+    margin-bottom: 16px;
+}
+
+.calendar-timeline-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.timeline-day-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.timeline-day-label {
+    background-color: var(--bg-surface-elevated);
+    padding: 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid var(--border-color);
+}
+
+.timeline-blocks-strip {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.timeline-block-tag {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+.timeline-block-tag.clear {
+    background-color: rgba(5, 242, 199, 0.08);
+    color: var(--color-teal);
+    border: 1px solid rgba(5, 242, 199, 0.2);
+}
