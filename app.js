@@ -178,7 +178,6 @@ function renderPublicTimelineBlocks() {
 
     publicTimelineBody.innerHTML = '';
 
-    // Generate upcoming 14 structural dates symmetrically loops
     for (let i = 0; i < 14; i++) {
         const targetDateStr = getOffsetDateString(i);
         const dailyJobs = schedules.filter(b => b.date === targetDateStr);
@@ -197,13 +196,11 @@ function renderPublicTimelineBlocks() {
         if (dailyJobs.length === 0) {
             blocksStrip.innerHTML = `<span class="timeline-block-tag clear">Entire Day Available</span>`;
         } else {
-            // Sort segments sequentially across time
             dailyJobs.sort((a,b) => timeStringToDecimal(a.time) - timeStringToDecimal(b.time));
             dailyJobs.forEach(job => {
                 const startTimeDec = timeStringToDecimal(job.time);
                 const endTimeDec = startTimeDec + job.duration;
 
-                // Map fractional hours cleanly back to human readouts for public display
                 const endHh = Math.floor(endTimeDec);
                 const endMm = (endTimeDec % 1) === 0 ? '00' : '30';
                 const calculatedEndTimeStr = `${endHh < 10 ? '0' + endHh : endHh}:${endMm}`;
@@ -423,7 +420,7 @@ document.getElementById('bookingForm')?.addEventListener('submit', (e) => {
 });
 
 // ==========================================================================
-// 10. CLIENT SIDE DOCUMENT COMPILE (html2pdf PIPELINE)
+// 10. CLIENT SIDE FORTNIGHT DOCUMENT COMPILE (html2pdf PIPELINE)
 // ==========================================================================
 document.getElementById('downloadPdfBtn')?.addEventListener('click', () => {
     const element = document.getElementById('pdfContent');
@@ -451,7 +448,7 @@ document.getElementById('downloadPdfBtn')?.addEventListener('click', () => {
 });
 
 // ==========================================================================
-// 11. FIXED-PRICE QUOTE ENGINE
+// 11. FIXED-PRICE QUOTE ENGINE & AGREEMENT PDF EXPORT
 // ==========================================================================
 document.getElementById('quoteForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -474,6 +471,19 @@ document.getElementById('quoteForm')?.addEventListener('submit', (e) => {
     document.getElementById('quoteOutputDate').textContent = new Date().toLocaleString();
 
     document.getElementById('quoteOutput').classList.remove('hidden');
+});
+
+document.getElementById('downloadQuotePdfBtn')?.addEventListener('click', () => {
+    const element = document.getElementById('quotePdfContent');
+    const name = document.getElementById('quoteOutputName').textContent || 'Client';
+    const opt = {
+        margin:       15,
+        filename:     `Service_Agreement_${name.replace(/\s+/g, '_')}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, backgroundColor: '#0d1527', useCORS: true, ignoreElements: (el) => el.classList.contains('no-pdf') },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
 });
 
 // ==========================================================================
