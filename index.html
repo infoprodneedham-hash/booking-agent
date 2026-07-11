@@ -1,425 +1,250 @@
-// ==========================================================================
-// 1. NAVIGATION TAB CONTROL LOGIC
-// ==========================================================================
-document.querySelectorAll('.nav-btn').forEach(button => {
-    button.addEventListener('click', () => {
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Services Booking Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
 
-        button.classList.add('active');
-        const targetTab = button.getAttribute('data-target');
-        document.getElementById(targetTab).classList.add('active');
-    });
-});
+    <div class="trust-banner">
+        <span>✓ 100% Police Checked Workers</span>
+        <span>✓ Fully Insured & Bonded Services</span>
+        <span>✓ Professional Local Care</span>
+    </div>
 
-// ==========================================================================
-// 2. IN-MEMORY DATA STORAGE & SAMPLE SEEDS
-// ==========================================================================
-let schedules = [
-    {
-        uid: "seed-1",
-        id: "CUST-412",
-        name: "Alice Vance",
-        email: "alice@example.com",
-        phone: "0411 222 333",
-        service: "Indoor & Outdoor Cleaning",
-        workers: 1,
-        date: getOffsetDateString(2),
-        time: "09:30",
-        duration: 2.0,
-        total: 110.00,
-        status: "incomplete"
-    },
-    {
-        uid: "seed-2",
-        id: "CUST-902",
-        name: "Marcus Brody",
-        email: "marcus@domain.au",
-        phone: "0499 888 777",
-        service: "Garden Maintenance",
-        workers: 2,
-        date: getOffsetDateString(5),
-        time: "14:00",
-        duration: 3.0,
-        total: 330.00,
-        status: "incomplete"
-    }
-];
+    <nav class="navbar">
+        <div class="nav-brand">Service<span>Hub</span></div>
+        <div class="nav-links">
+            <button class="nav-btn active" data-target="services">Services</button>
+            <button class="nav-btn" data-target="booking">Booking Agent</button>
+            <button class="nav-btn" data-target="calendar">Fortnight Schedule</button>
+            <button class="nav-btn" data-target="contact">Enquiry & Quote</button>
+        </div>
+    </nav>
 
-function getOffsetDateString(daysAhead) {
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + daysAhead);
-    return targetDate.toISOString().split('T')[0];
-}
+    <main class="container">
 
-// ==========================================================================
-// 3. DYNAMIC DROPDOWN CONFIGURATION GENERATORS
-// ==========================================================================
-function initializeDurationDropdown() {
-    const durationSelect = document.getElementById('bookingDuration');
-    if (!durationSelect) return;
-    durationSelect.innerHTML = '';
-    for (let min = 30; min <= 480; min += 30) {
-        const hrs = min / 60;
-        durationSelect.appendChild(new Option(hrs === 1 ? '1 hour' : `${hrs} hours`, hrs));
-    }
-}
+        <section id="services" class="tab-content active">
+            <div class="section-header">
+                <h2>Our Premium Services</h2>
+                <p>Select from our widely vetted capabilities tailored to your daily needs.</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card"><h3>Indoor & Outdoor Cleaning</h3><p>Deep cleaning, vacuuming, dusting, window washing, and outdoor patio sweeping.</p></div>
+                <div class="service-card"><h3>Garden Maintenance</h3><p>Lawn mowing, weeding, pruning, hedging, and green waste management.</p></div>
+                <div class="service-card"><h3>Meal Preparation</h3><p>Custom nutritional meal planning, batch cooking, and sanitary kitchen cleanup.</p></div>
+                <div class="service-card"><h3>Repairs & Maintenance</h3><p>Minor household handyperson tasks, fixing fixtures, and preventative repairs.</p></div>
+                <div class="service-card"><h3>Transport Services</h3><p>Safe transport to medical appointments, social engagements, and local outings.</p></div>
+                <div class="service-card"><h3>Grocery Shopping</h3><p>Guided or independent errand runs, grocery sourcing, and pantry stocking.</p></div>
+                <div class="service-card"><h3>Pet Minding & Care</h3><p>Walking, feeding, basic washing, and dedicated companion care for domestic pets.</p></div>
+                <div class="service-card"><h3>Tech Support</h3><p>Wi-Fi troubleshooting, smart device setup, software updates, and basic device tutorials.</p></div>
+            </div>
 
-// Utility: Converts "HH:MM" timestamp strings into a fractional decimal number
-function timeStringToDecimal(timeStr) {
-    const [hrs, mins] = timeStr.split(':').map(Number);
-    return hrs + (mins / 60);
-}
+            <div class="terms-box">
+                <h3>Terms & Conditions</h3>
+                <p><strong>Payment Terms:</strong> All invoices are strictly to be paid within <strong>7 days</strong> of service completion.</p>
+                <h4>Scope of Rights & Responsibilities</h4>
+                <ul>
+                    <li><strong>Customer:</strong> Has the right to a clean, safe, respectful service matching their booking specifications. Responsibilities include providing a hazard-free work environment, access to necessary property utilities, and accurate information regarding support requirements.</li>
+                    <li><strong>Worker:</strong> Has the right to work in a safe environment free from harassment or unsafe structural elements. Responsibilities include punctuality, adhering to professional standards, following safety guidelines, and executing tasks efficiently as specified in the service agreement.</li>
+                </ul>
+            </div>
+        </section>
 
-// ==========================================================================
-// 4. SMART AVAILABILITY ENGINE (CONFLICT LOCKOUT W/ 1-HOUR PADDING)
-// ==========================================================================
-function updateAvailableTimeSlots() {
-    const timeSelect = document.getElementById('bookingTime');
-    const dateInput = document.getElementById('bookingDate');
-    const durationSelect = document.getElementById('bookingDuration');
-    const warningLabel = document.getElementById('timeWarning');
-    const currentEditingUid = document.getElementById('editBookingId').value;
+        <section id="booking" class="tab-content">
+            <div class="section-header">
+                <h2>Service Booking Agent</h2>
+                <p>Configure your service requirements below. Conflicts are dynamically blocked with a 1-hour buffer.</p>
+            </div>
+            <div class="form-wrapper">
+                <form id="bookingForm">
+                    <input type="hidden" id="editBookingId" value="">
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="clientId">Customer ID</label>
+                            <input type="text" id="clientId" placeholder="e.g. CUST-883" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientName">Full Name</label>
+                            <input type="text" id="clientName" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientEmail">Email Address</label>
+                            <input type="email" id="clientEmail" placeholder="john@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientPhone">Phone Number</label>
+                            <input type="tel" id="clientPhone" placeholder="0400 000 000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="serviceType">Select Service</label>
+                            <select id="serviceType" required>
+                                <option value="Indoor & Outdoor Cleaning">Indoor & Outdoor Cleaning</option>
+                                <option value="Garden Maintenance">Garden Maintenance</option>
+                                <option value="Meal Preparation">Meal Preparation</option>
+                                <option value="Repairs & Maintenance">Repairs & Maintenance</option>
+                                <option value="Transport">Transport</option>
+                                <option value="Grocery Shopping">Grocery Shopping</option>
+                                <option value="Pet Care & Walking">Pet Care & Walking/Wash</option>
+                                <option value="Tech Support">Tech Support</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="workerCount">Number of Workers</label>
+                            <select id="workerCount">
+                                <option value="1">1 Worker ($50/hr)</option>
+                                <option value="2">2 Workers ($100/hr)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookingDate">Date</label>
+                            <input type="date" id="bookingDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookingDuration">Duration (Hours)</label>
+                            <select id="bookingDuration" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookingTime">Start Time</label>
+                            <select id="bookingTime" required></select>
+                            <span id="timeWarning" class="field-warning"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="materialsCost">Additional Materials Cost ($)</label>
+                            <input type="number" id="materialsCost" min="0" value="0" step="0.01">
+                        </div>
+                    </div>
 
-    if (!timeSelect || !dateInput || !durationSelect) return;
+                    <div class="checkbox-group">
+                        <label class="switch-container">
+                            <input type="checkbox" id="includeGst" checked>
+                            <span class="slider"></span>
+                            Apply 10% GST
+                        </label>
+                    </div>
 
-    const selectedDate = dateInput.value;
-    const selectedDuration = parseFloat(durationSelect.value || 0.5);
-    timeSelect.innerHTML = '';
-    warningLabel.textContent = '';
+                    <div class="calculator-box">
+                        <h3>Cost Summary</h3>
+                        <div class="calc-row"><span>Base Rate Split:</span><span id="summaryBase">$0.00</span></div>
+                        <div class="calc-row"><span>Materials:</span><span id="summaryMaterials">$0.00</span></div>
+                        <div class="calc-row"><span>GST Component:</span><span id="summaryGst">$0.00</span></div>
+                        <div class="calc-row total"><span>Total Estimated Cost:</span><span id="summaryTotal">$0.00</span></div>
+                    </div>
 
-    if (!selectedDate) return;
+                    <div class="form-group authorization-gate-box" style="margin-bottom: 24px;">
+                        <label for="formPasscode" style="color: var(--color-primary);">System Authorization Passcode</label>
+                        <input type="text" id="formPasscode" placeholder="Enter security passcode to authorize assignment" required>
+                        <span id="passcodeWarning" class="field-warning"></span>
+                    </div>
 
-    // Isolate active records for the target calendar date (excluding self if editing)
-    const dayBookings = schedules.filter(b => b.date === selectedDate && b.uid !== currentEditingUid);
+                    <div class="form-actions">
+                        <button type="submit" id="submitBookingBtn" class="btn btn-primary">Add to Schedule</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary hidden">Cancel Edit</button>
+                    </div>
+                </form>
+            </div>
+        </section>
 
-    let standardSlotsAdded = 0;
-    let blockedSlotsCount = 0;
+        <section id="calendar" class="tab-content">
+            <div class="section-header">
+                <h2>Upcoming Fortnight Schedule</h2>
+                <p>View your confirmed bookings for the next 14 days based on the current system date.</p>
+                <button id="downloadPdfBtn" class="btn btn-secondary">Download Schedule PDF</button>
+            </div>
 
-    // Loop through 30-minute steps across the allowable 6:00 AM to 6:00 PM operational spectrum
-    for (let hour = 6; hour <= 18; hour += 0.5) {
-        if (hour === 18) break; // Terminate exactly at upper service threshold boundary
-
-        const hh = Math.floor(hour);
-        const mm = (hour % 1) === 0 ? '00' : '30';
-        const timeStr = `${hh < 10 ? '0' + hh : hh}:${mm}`;
-
-        const currentSlotStart = hour;
-        const currentSlotEnd = hour + selectedDuration;
-
-        let isBlocked = false;
-
-        // Perform overlapping safety vector evaluation matrix checks
-        for (const booking of dayBookings) {
-            const bookedStart = timeStringToDecimal(booking.time);
-            const bookedEnd = bookedStart + booking.duration;
-
-            // Expand baseline tracking horizons outward symmetrically by 1.0 hour to act as buffers
-            const safeBlockStart = bookedStart - 1.0;
-            const safeBlockEnd = bookedEnd + 1.0;
-
-            if (currentSlotStart < safeBlockEnd && currentSlotEnd > safeBlockStart) {
-                isBlocked = true;
-                break;
-            }
-        }
-
-        // Build option element
-        const option = new Option(timeStr, timeStr);
-        if (isBlocked) {
-            option.disabled = true;
-            option.text += ' (Unavailable / Buffer)';
-            blockedSlotsCount++;
-        } else {
-            standardSlotsAdded++;
-        }
-        timeSelect.appendChild(option);
-    }
-
-    if (standardSlotsAdded === 0 && blockedSlotsCount > 0) {
-        warningLabel.textContent = 'Notice: No clear slots meet the 1-hour safety buffer configurations for this date.';
-    }
-}
-
-// Re-evaluate system slots cleanly if changes occur on dependencies
-['bookingDate', 'bookingDuration'].forEach(id => {
-    document.getElementById(id)?.addEventListener('change', updateAvailableTimeSlots);
-});
-
-// ==========================================================================
-// 5. LIVE APPLICATION COST CALCULATION CORE
-// ==========================================================================
-const hourlyRate = 50;
-function calculateCurrentCosts() {
-    const workers = parseInt(document.getElementById('workerCount')?.value || 1);
-    const hours = parseFloat(document.getElementById('bookingDuration')?.value || 0.5);
-    const materials = parseFloat(document.getElementById('materialsCost')?.value || 0);
-    const useGst = document.getElementById('includeGst')?.checked;
-
-    const baseCost = workers * hours * hourlyRate;
-    const gstValue = useGst ? (baseCost + materials) * 0.10 : 0;
-    const totalCost = baseCost + materials + gstValue;
-
-    document.getElementById('summaryBase').textContent = `$${baseCost.toFixed(2)}`;
-    document.getElementById('summaryMaterials').textContent = `$${materials.toFixed(2)}`;
-    document.getElementById('summaryGst').textContent = `$${gstValue.toFixed(2)}`;
-    document.getElementById('summaryTotal').textContent = `$${totalCost.toFixed(2)}`;
-
-    return { totalCost };
-}
-
-['workerCount', 'bookingDuration', 'materialsCost', 'includeGst'].forEach(id => {
-    document.getElementById(id)?.addEventListener('input', calculateCurrentCosts);
-});
-
-// ==========================================================================
-// 6. SCHEDULE INTERACTIVE RENDER ENGINE (FORTNIGHT MATRICES)
-// ==========================================================================
-function renderFortnightSchedule() {
-    const tableBody = document.getElementById('scheduleBody');
-    if (!tableBody) return;
-
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    const endFortnight = new Date();
-    endFortnight.setDate(today.getDate() + 14);
-    endFortnight.setHours(23,59,59,999);
-
-    const activeFortnightBookings = schedules.filter(item => {
-        const itemDate = new Date(item.date);
-        return itemDate >= today && itemDate <= endFortnight;
-    }).sort((a,b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
-
-    if (activeFortnightBookings.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No bookings scheduled for the upcoming 14 days.</td></tr>`;
-        return;
-    }
-
-    tableBody.innerHTML = activeFortnightBookings.map(item => `
-        <tr id="row-${item.uid}">
-            <td>
-                <span class="status-badge ${item.status}">${item.status}</span>
-            </td>
-            <td>
-                <div style="font-weight:600;">${formatDisplayDate(item.date)}</div>
-                <div style="font-size:0.85rem; color:var(--color-primary);">${item.time} (${item.duration} hrs)</div>
-            </td>
-            <td>
-                <div style="font-weight:600;">${item.name}</div>
-                <div style="font-size:0.8rem; color:var(--text-muted);">ID: ${item.id} | ${item.phone}</div>
-            </td>
-            <td>
-                <div style="font-weight:500;">${item.service}</div>
-                <div style="font-size:0.85rem; color:var(--text-muted);">${item.workers} Worker(s)</div>
-            </td>
-            <td>
-                <div style="font-weight:600; color:var(--color-teal);">$${item.total.toFixed(2)}</div>
-            </td>
-            <td class="no-pdf">
-                <div class="action-cell">
-                    ${item.status === 'incomplete' ? `<button class="btn-table complete-trigger" onclick="toggleStatus('${item.uid}')">Complete</button>` : ''}
-                    <button class="btn-table edit-trigger" onclick="initiateEditWorkflow('${item.uid}')">Reschedule</button>
-                    <button class="btn-table cancel-trigger" onclick="deleteJobRecord('${item.uid}')">Cancel</button>
+            <div id="pdfContent" class="schedule-wrapper">
+                <div class="pdf-header-only">
+                    <h1>Upcoming Fortnight Schedule</h1>
+                    <p id="pdfTimestamp"></p>
                 </div>
-            </td>
-        </tr>
-    `).join('');
-}
+                <div class="table-responsive">
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Date/Time</th>
+                                <th>Client Details</th>
+                                <th>Service & Resources</th>
+                                <th>Total Cost</th>
+                                <th class="no-pdf">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
 
-function formatDisplayDate(dateStr) {
-    const parts = dateStr.split('-');
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-}
+        <section id="contact" class="tab-content">
+            <div class="section-header">
+                <h2>Fixed-Price Quote & Agreement</h2>
+                <p>Generate an official static service arrangement and cost summary instantly.</p>
+            </div>
+            <div class="form-wrapper">
+                <form id="quoteForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="quoteName">Full Name</label>
+                            <input type="text" id="quoteName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quoteEmail">Email Address</label>
+                            <input type="email" id="quoteEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quoteService">Requested Service Scope</label>
+                            <select id="quoteService" required>
+                                <option value="Indoor & Outdoor Cleaning">Indoor & Outdoor Cleaning</option>
+                                <option value="Garden Maintenance">Garden Maintenance</option>
+                                <option value="Meal Preparation">Meal Preparation</option>
+                                <option value="Repairs & Maintenance">Repairs & Maintenance</option>
+                                <option value="Transport & Errands">Transport & Shopping</option>
+                                <option value="Tech Support">Tech Support</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quoteHours">Estimated Total Project Hours</label>
+                            <input type="number" id="quoteHours" min="0.5" step="0.5" value="2" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="quoteNotes">Service Requirements / Description</label>
+                        <textarea id="quoteNotes" rows="4" placeholder="Describe the specific jobs needed..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generate Binding Quote</button>
+                </form>
 
-// ==========================================================================
-// 7. INLINE STATE AND ACTION WRITERS
-// ==========================================================================
-window.toggleStatus = function(uid) {
-    const index = schedules.findIndex(b => b.uid === uid);
-    if(index !== -1) {
-        schedules[index].status = 'completed';
-        renderFortnightSchedule();
-    }
-};
+                <div id="quoteOutput" class="quote-output hidden">
+                    <div class="quote-card">
+                        <h3>Fixed-Price Quote & Agreement</h3>
+                        <p class="quote-meta">Generated on: <span id="quoteOutputDate"></span></p>
+                        <hr>
+                        <p><strong>Prepared For:</strong> <span id="quoteOutputName"></span> (<span id="quoteOutputEmail"></span>)</p>
+                        <p><strong>Service Focus:</strong> <span id="quoteOutputService"></span></p>
+                        <p><strong>Description:</strong> <span id="quoteOutputNotes"></span></p>
+                        <hr>
+                        <div class="quote-pricing">
+                            <p>Calculated Total Work Value: <span id="quoteOutputPrice"></span></p>
+                            <p class="small-text">Includes basic operational risk margins, worker safety assignment assets, and liability insurance safeguards.</p>
+                        </div>
+                        <div class="quote-terms">
+                            <h4>Agreement Terms</h4>
+                            <p>By executing this service arrangement, the customer agrees to provide an environment compliant with occupational safety regulations. Work will be itemized and tracked accurately. Invoices issued upon job completion are terms <strong>strictly 7 days net.</strong> All service delivery personnel hold clean police vetting configurations.</p>
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="window.print()">Print Agreement</button>
+                    </div>
+                </div>
 
-window.deleteJobRecord = function(uid) {
-    if(confirm('Are you sure you want to cancel this booking assignment?')) {
-        schedules = schedules.filter(b => b.uid !== uid);
-        renderFortnightSchedule();
-        updateAvailableTimeSlots();
-    }
-};
+            </div>
+        </section>
 
-window.initiateEditWorkflow = function(uid) {
-    const job = schedules.find(b => b.uid === uid);
-    if(!job) return;
+    </main>
 
-    document.getElementById('editBookingId').value = job.uid;
-    document.getElementById('clientId').value = job.id;
-    document.getElementById('clientName').value = job.name;
-    document.getElementById('clientEmail').value = job.email;
-    document.getElementById('clientPhone').value = job.phone;
-    document.getElementById('serviceType').value = job.service;
-    document.getElementById('workerCount').value = job.workers;
-    document.getElementById('bookingDate').value = job.date;
-    document.getElementById('bookingDuration').value = job.duration;
-
-    // Regenerate daily time vectors safely before assigning the current value
-    updateAvailableTimeSlots();
-    document.getElementById('bookingTime').value = job.time;
-    calculateCurrentCosts();
-
-    document.getElementById('submitBookingBtn').textContent = 'Update Booking Assignment';
-    document.getElementById('cancelEditBtn').classList.remove('hidden');
-
-    document.querySelector('[data-target="booking"]').click();
-};
-
-document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
-    resetBookingFormState();
-});
-
-function resetBookingFormState() {
-    document.getElementById('bookingForm').reset();
-    
-    // Clear Passcode Verification Flags
-    const passcodeWarning = document.getElementById('passcodeWarning');
-    if (passcodeWarning) passcodeWarning.textContent = '';
-    
-    document.getElementById('editBookingId').value = '';
-    document.getElementById('submitBookingBtn').textContent = 'Add to Schedule';
-    document.getElementById('cancelEditBtn').classList.add('hidden');
-    
-    document.getElementById('bookingDate').value = new Date().toISOString().split('T')[0];
-    
-    updateAvailableTimeSlots();
-    calculateCurrentCosts();
-}
-
-// ==========================================================================
-// 8. FORM SUBMIT CONTROL (PASSCODE INTERACTION GATE)
-// ==========================================================================
-document.getElementById('bookingForm')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const passcodeField = document.getElementById('formPasscode');
-    const passcodeWarning = document.getElementById('passcodeWarning');
-    
-    if (passcodeWarning) passcodeWarning.textContent = '';
-
-    // Passcode Validation Engine Check
-    if (passcodeField && passcodeField.value.trim() !== 'MAST123') {
-        if (passcodeWarning) {
-            passcodeWarning.textContent = 'Invalid Authorization Passcode. Submission locked.';
-        }
-        passcodeField.focus();
-        return; // Terminate execution immediately
-    }
-
-    const currentEditingUid = document.getElementById('editBookingId').value;
-    const costs = calculateCurrentCosts();
-    const targetTime = document.getElementById('bookingTime').value;
-
-    if(!targetTime) {
-        alert('Please pick a viable starting time window slot.');
-        return;
-    }
-
-    const compiledData = {
-        id: document.getElementById('clientId').value,
-        name: document.getElementById('clientName').value,
-        email: document.getElementById('clientEmail').value,
-        phone: document.getElementById('clientPhone').value,
-        service: document.getElementById('serviceType').value,
-        workers: parseInt(document.getElementById('workerCount').value),
-        date: document.getElementById('bookingDate').value,
-        time: targetTime,
-        duration: parseFloat(document.getElementById('bookingDuration').value),
-        total: costs.totalCost
-    };
-
-    if (currentEditingUid) {
-        const idx = schedules.findIndex(b => b.uid === currentEditingUid);
-        if(idx !== -1) {
-            schedules[idx] = { ...schedules[idx], ...compiledData };
-        }
-    } else {
-        compiledData.uid = 'uid-' + Date.now();
-        compiledData.status = 'incomplete';
-        schedules.push(compiledData);
-    }
-
-    resetBookingFormState();
-    renderFortnightSchedule();
-    document.querySelector('[data-target="calendar"]').click();
-});
-
-// ==========================================================================
-// 9. CLIENT SIDE CLIENT DOCUMENT COMPILE (html2pdf PIPELINE)
-// ==========================================================================
-document.getElementById('downloadPdfBtn')?.addEventListener('click', () => {
-    const element = document.getElementById('pdfContent');
-    const timestampElement = document.getElementById('pdfTimestamp');
-    
-    if (timestampElement) {
-        const now = new Date();
-        timestampElement.textContent = `Generated on: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`;
-    }
-
-    const opt = {
-        margin:       10,
-        filename:     'Fortnight_Service_Schedule.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, backgroundColor: '#161F30', useCORS: true, ignoreElements: (el) => el.classList.contains('no-pdf') },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-    };
-
-    const pdfHeader = document.querySelector('.pdf-header-only');
-    if (pdfHeader) pdfHeader.style.display = 'block';
-
-    html2pdf().set(opt).from(element).save().then(() => {
-        if (pdfHeader) pdfHeader.style.display = 'none';
-    });
-});
-
-// ==========================================================================
-// 10. FIXED-PRICE QUOTE ENGINE
-// ==========================================================================
-document.getElementById('quoteForm')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const name = document.getElementById('quoteName').value;
-    const email = document.getElementById('quoteEmail').value;
-    const service = document.getElementById('quoteService').value;
-    const hours = parseFloat(document.getElementById('quoteHours').value);
-    const notes = document.getElementById('quoteNotes').value;
-
-    const baseCalculatedQuote = hours * 50;
-    const calculatedGst = baseCalculatedQuote * 0.10;
-    const finalBindingQuotePrice = baseCalculatedQuote + calculatedGst;
-
-    document.getElementById('quoteOutputName').textContent = name;
-    document.getElementById('quoteOutputEmail').textContent = email;
-    document.getElementById('quoteOutputService').textContent = service;
-    document.getElementById('quoteOutputNotes').textContent = notes;
-    document.getElementById('quoteOutputPrice').textContent = `$${finalBindingQuotePrice.toFixed(2)} (GST Inclusive)`;
-    document.getElementById('quoteOutputDate').textContent = new Date().toLocaleString();
-
-    document.getElementById('quoteOutput').classList.remove('hidden');
-});
-
-// ==========================================================================
-// 11. BOOTSTRAP INITIALIZATION HOOK
-// ==========================================================================
-window.addEventListener('DOMContentLoaded', () => {
-    const dateInput = document.getElementById('bookingDate');
-    if(dateInput) {
-        dateInput.min = new Date().toISOString().split('T')[0];
-        dateInput.value = new Date().toISOString().split('T')[0];
-    }
-
-    initializeDurationDropdown();
-    updateAvailableTimeSlots();
-    calculateCurrentCosts();
-    renderFortnightSchedule();
-});
+    <script src="app.js"></script>
+</body>
+</html>
