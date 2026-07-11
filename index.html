@@ -145,7 +145,7 @@
 
                     <!-- Authorization Passcode Gate -->
                     <div class="form-group authorization-gate-box" style="margin-bottom: 24px;">
-                        <label for="formPasscode" style="color: var(--color-primary);">System Authorization Passcode</label>
+                        <label for="formPasscode" style="value-color: var(--color-primary);">System Authorization Passcode</label>
                         <input type="text" id="formPasscode" placeholder="Enter security passcode to authorize assignment" required>
                         <span id="passcodeWarning" class="field-warning"></span>
                     </div>
@@ -169,7 +169,7 @@
                     <div class="form-group inline-gate">
                         <label for="schedulePasscode">Unlock Detailed Fortnight View</label>
                         <div class="input-action-group">
-                            <input type="text" id="schedulePasscode" placeholder="Enter passcode to show details...">
+                            <input type="text" id="schedulePasscode" placeholder="Enter MAST123 to decrypt details...">
                             <button type="button" class="btn btn-primary" id="unlockScheduleBtn">Decrypt Records</button>
                         </div>
                         <span id="schedulePasscodeWarning" class="field-warning"></span>
@@ -260,9 +260,9 @@
                     <button type="submit" class="btn btn-primary">Generate Binding Quote</button>
                 </form>
 
-                <!-- Rendered Quote Box -->
+                <!-- Rendered Quote Target Print wrapper Box -->
                 <div id="quoteOutput" class="quote-output hidden">
-                    <div class="quote-card">
+                    <div class="quote-card" id="quotePdfContent">
                         <h3>Fixed-Price Quote & Agreement</h3>
                         <p class="quote-meta">Generated on: <span id="quoteOutputDate"></span></p>
                         <hr>
@@ -278,7 +278,7 @@
                             <h4>Agreement Terms</h4>
                             <p>By executing this service arrangement, the customer agrees to provide an environment compliant with occupational safety regulations. Work will be itemized and tracked accurately. Invoices issued upon job completion are terms <strong>strictly 7 days net.</strong> All service delivery personnel hold clean police vetting configurations.</p>
                         </div>
-                        <button type="button" class="btn btn-secondary" onclick="window.print()">Print Agreement</button>
+                        <button type="button" class="btn btn-secondary no-pdf" id="downloadQuotePdfBtn">Download Agreement PDF</button>
                     </div>
                 </div>
 
