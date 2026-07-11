@@ -16,6 +16,9 @@ document.querySelectorAll('.nav-btn').forEach(button => {
     });
 });
 
+// Global state tracking variable to bind active generated quote strings cleanly
+let activeQuoteReferenceNumber = "";
+
 // ==========================================================================
 // 2. IN-MEMORY DATA STORAGE & SAMPLE SEEDS
 // ==========================================================================
@@ -434,7 +437,8 @@ document.getElementById('quoteCallbackForm')?.addEventListener('submit', (e) => 
     const clientName = document.getElementById('quoteOutputName').textContent || 'Provisional Client';
     const quoteValue = document.getElementById('quoteOutputPrice').textContent;
 
-    alert(`Callback Requested Successfully!\nOur business development team will call ${phoneNum} to finalize the contract for ${clientName} evaluated at ${quoteValue}.`);
+    // Prefills and structural logs validation actions explicitly
+    alert(`Callback Requested Successfully!\nOur business development team will call ${phoneNum} to finalize the contract for ${clientName}.\n\nLinked Reference: ${activeQuoteReferenceNumber}\nEvaluated at: ${quoteValue}`);
     e.target.reset();
 });
 
@@ -454,6 +458,12 @@ document.getElementById('quoteForm')?.addEventListener('submit', (e) => {
     const calculatedGst = baseCalculatedQuote * 0.10;
     const finalBindingQuotePrice = baseCalculatedQuote + calculatedGst;
 
+    // Generates high-fidelity random sequential tracking serial configurations
+    const standardRandomDigits = Math.floor(10000 + Math.random() * 90000);
+    activeQuoteReferenceNumber = `AA-${standardRandomDigits}`;
+
+    // Map UI Output DOM elements
+    document.getElementById('quoteOutputRef').textContent = `Ref: ${activeQuoteReferenceNumber}`;
     document.getElementById('quoteOutputName').textContent = name;
     document.getElementById('quoteOutputEmail').textContent = email;
     document.getElementById('quoteOutputService').textContent = service;
