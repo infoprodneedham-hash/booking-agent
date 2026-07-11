@@ -10,7 +10,6 @@ document.querySelectorAll('.nav-btn').forEach(button => {
         const targetTab = button.getAttribute('data-target');
         document.getElementById(targetTab).classList.add('active');
         
-        // Relock administrative views immediately upon changing view contexts
         if(targetTab !== 'calendar') {
             lockScheduleTabSecureData();
         }
@@ -250,7 +249,7 @@ function renderFortnightSchedule() {
                 <div style="font-size:0.85rem; color:var(--text-muted);">${item.workers} Worker(s)</div>
             </td>
             <td><div style="font-weight:600; color:var(--color-teal);">$${item.total.toFixed(2)}</div></td>
-            <td class="no-pdf">
+            <td>
                 <div class="action-cell">
                     ${item.status === 'incomplete' ? `<button class="btn-table complete-trigger" onclick="toggleStatus('${item.uid}')">Complete</button>` : ''}
                     <button class="btn-table edit-trigger" onclick="initiateEditWorkflow('${item.uid}')">Reschedule</button>
@@ -411,7 +410,6 @@ document.getElementById('bookingForm')?.addEventListener('submit', (e) => {
     resetBookingFormState();
     renderPublicTimelineBlocks();
     
-    // Explicitly bypass lock state to let coordinators see the results immediately
     document.getElementById('secureScheduleContent').classList.remove('hidden');
     document.getElementById('scheduleGate').classList.add('hidden');
     renderFortnightSchedule();
@@ -420,35 +418,28 @@ document.getElementById('bookingForm')?.addEventListener('submit', (e) => {
 });
 
 // ==========================================================================
-// 10. CLIENT SIDE FORTNIGHT DOCUMENT COMPILE (html2pdf PIPELINE)
+// 10. CALLBACK SUBMIT FIELDS HANDLING HOOKS
 // ==========================================================================
-document.getElementById('downloadPdfBtn')?.addEventListener('click', () => {
-    const element = document.getElementById('pdfContent');
-    const timestampElement = document.getElementById('pdfTimestamp');
+document.getElementById('scheduleCallbackForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const phoneNum = document.getElementById('scheduleCallbackPhone').value;
     
-    if (timestampElement) {
-        const now = new Date();
-        timestampElement.textContent = `Generated on: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`;
-    }
+    alert(`Priority Callback Registered!\nAn agent will call ${phoneNum} shortly to resolve schedule changes.`);
+    e.target.reset();
+});
 
-    const opt = {
-        margin:       10,
-        filename:     'Fortnight_Service_Schedule.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, backgroundColor: '#161F30', useCORS: true, ignoreElements: (el) => el.classList.contains('no-pdf') },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-    };
+document.getElementById('quoteCallbackForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const phoneNum = document.getElementById('quoteCallbackPhone').value;
+    const clientName = document.getElementById('quoteOutputName').textContent || 'Provisional Client';
+    const quoteValue = document.getElementById('quoteOutputPrice').textContent;
 
-    const pdfHeader = document.querySelector('.pdf-header-only');
-    if (pdfHeader) pdfHeader.style.display = 'block';
-
-    html2pdf().set(opt).from(element).save().then(() => {
-        if (pdfHeader) pdfHeader.style.display = 'none';
-    });
+    alert(`Callback Requested Successfully!\nOur business development team will call ${phoneNum} to finalize the contract for ${clientName} evaluated at ${quoteValue}.`);
+    e.target.reset();
 });
 
 // ==========================================================================
-// 11. FIXED-PRICE QUOTE ENGINE & AGREEMENT PDF EXPORT
+// 11. FIXED-PRICE QUOTE ENGINE
 // ==========================================================================
 document.getElementById('quoteForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -471,19 +462,6 @@ document.getElementById('quoteForm')?.addEventListener('submit', (e) => {
     document.getElementById('quoteOutputDate').textContent = new Date().toLocaleString();
 
     document.getElementById('quoteOutput').classList.remove('hidden');
-});
-
-document.getElementById('downloadQuotePdfBtn')?.addEventListener('click', () => {
-    const element = document.getElementById('quotePdfContent');
-    const name = document.getElementById('quoteOutputName').textContent || 'Client';
-    const opt = {
-        margin:       15,
-        filename:     `Service_Agreement_${name.replace(/\s+/g, '_')}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, backgroundColor: '#0d1527', useCORS: true, ignoreElements: (el) => el.classList.contains('no-pdf') },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(element).save();
 });
 
 // ==========================================================================
