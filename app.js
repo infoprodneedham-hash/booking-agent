@@ -164,7 +164,7 @@ function calculateCurrentCosts() {
     document.getElementById('summaryGst').textContent = `$${gstValue.toFixed(2)}`;
     document.getElementById('summaryTotal').textContent = `$${totalCost.toFixed(2)}`;
 
-    return { totalCost };
+    return { totalCost, baseCost, gstValue, materials };
 }
 
 ['workerCount', 'bookingDuration', 'materialsCost', 'includeGst'].forEach(id => {
@@ -361,7 +361,7 @@ function resetBookingFormState() {
 }
 
 // ==========================================================================
-// 9. FORM SUBMIT CONTROL (PASSCODE INTERACTION GATE)
+// 9. FORM SUBMIT CONTROL (WITH NATIVE FORMSPREE POST DISPATCH)
 // ==========================================================================
 document.getElementById('bookingForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -396,9 +396,28 @@ document.getElementById('bookingForm')?.addEventListener('submit', (e) => {
         date: document.getElementById('bookingDate').value,
         time: targetTime,
         duration: parseFloat(document.getElementById('bookingDuration').value),
+        baseCost: costs.baseCost,
+        materialsCost: costs.materials,
+        gstComponent: costs.gstValue,
         total: costs.totalCost
     };
 
+    // --- Formspree POST Delivery Pipeline ---
+    fetch("https://formspree.io/f/YOUR_ENDPOINT_ID", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ formType: "New Service Booking Assignment", ...compiledData })
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log("Formspree collection delivery successful.");
+        } else {
+            console.error("Formspree transmission warning encountered.");
+        }
+    })
+    .catch(error => console.error("Network structural transmission failure:", error));
+
+    // Persist to UI application memory structure natively
     if (currentEditingUid) {
         const idx = schedules.findIndex(b => b.uid === currentEditingUid);
         if(idx !== -1) {
@@ -421,12 +440,18 @@ document.getElementById('bookingForm')?.addEventListener('submit', (e) => {
 });
 
 // ==========================================================================
-// 10. CALLBACK SUBMIT FIELDS HANDLING HOOKS
+// 10. CALLBACK SUBMIT HANDLING HOOKS (WITH FORMSPREE POST DISPATCH)
 // ==========================================================================
 document.getElementById('scheduleCallbackForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const phoneNum = document.getElementById('scheduleCallbackPhone').value;
     
+    fetch("https://formspree.io/f/YOUR_ENDPOINT_ID", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ formType: "Urgent Schedule Change Callback Request", contactPhone: phoneNum, contextualTimestamp: new Date().toISOString() })
+    });
+
     alert(`Priority Callback Registered!\nAn agent will call ${phoneNum} shortly to resolve schedule changes.`);
     e.target.reset();
 });
@@ -437,13 +462,24 @@ document.getElementById('quoteCallbackForm')?.addEventListener('submit', (e) => 
     const clientName = document.getElementById('quoteOutputName').textContent || 'Provisional Client';
     const quoteValue = document.getElementById('quoteOutputPrice').textContent;
 
-    // Prefills and structural logs validation actions explicitly
+    fetch("https://formspree.io/f/YOUR_ENDPOINT_ID", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ 
+            formType: "Quote Finalization Callback Request", 
+            contactPhone: phoneNum, 
+            clientName: clientName, 
+            quoteReference: activeQuoteReferenceNumber, 
+            agreedValue: quoteValue 
+        })
+    });
+
     alert(`Callback Requested Successfully!\nOur business development team will call ${phoneNum} to finalize the contract for ${clientName}.\n\nLinked Reference: ${activeQuoteReferenceNumber}\nEvaluated at: ${quoteValue}`);
     e.target.reset();
 });
 
 // ==========================================================================
-// 11. FIXED-PRICE QUOTE ENGINE
+// 11. FIXED-PRICE QUOTE ENGINE (WITH FORMSPREE POST DISPATCH)
 // ==========================================================================
 document.getElementById('quoteForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -458,9 +494,25 @@ document.getElementById('quoteForm')?.addEventListener('submit', (e) => {
     const calculatedGst = baseCalculatedQuote * 0.10;
     const finalBindingQuotePrice = baseCalculatedQuote + calculatedGst;
 
-    // Generates high-fidelity random sequential tracking serial configurations
     const standardRandomDigits = Math.floor(10000 + Math.random() * 90000);
     activeQuoteReferenceNumber = `AA-${standardRandomDigits}`;
+
+    const quotePayload = {
+        formType: "Fixed-Price Agreement Lead Form",
+        quoteReference: activeQuoteReferenceNumber,
+        clientName: name,
+        clientEmail: email,
+        requestedScope: service,
+        estimatedProjectHours: hours,
+        requirementsNotes: notes,
+        totalQuotedPrice: finalBindingQuotePrice
+    };
+
+    fetch("https://formspree.io/f/YOUR_ENDPOINT_ID", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(quotePayload)
+    });
 
     // Map UI Output DOM elements
     document.getElementById('quoteOutputRef').textContent = `Ref: ${activeQuoteReferenceNumber}`;
