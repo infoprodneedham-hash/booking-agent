@@ -403,7 +403,7 @@ document.getElementById('bookingForm')?.addEventListener('submit', (e) => {
     };
 
     // --- Formspree POST Delivery Pipeline ---
-    fetch("https://formspree.io/f/https://formspree.io/f/meeyjpqb", {
+    fetch("https://formspree.io/f/meeyjpqb", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({ formType: "New Service Booking Assignment", ...compiledData })
@@ -446,7 +446,7 @@ document.getElementById('scheduleCallbackForm')?.addEventListener('submit', (e) 
     e.preventDefault();
     const phoneNum = document.getElementById('scheduleCallbackPhone').value;
     
-    fetch("https://formspree.io/f/https://formspree.io/f/meeyjpqb", {
+    fetch("https://formspree.io/f/meeyjpqb", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({ formType: "Urgent Schedule Change Callback Request", contactPhone: phoneNum, contextualTimestamp: new Date().toISOString() })
@@ -462,7 +462,7 @@ document.getElementById('quoteCallbackForm')?.addEventListener('submit', (e) => 
     const clientName = document.getElementById('quoteOutputName').textContent || 'Provisional Client';
     const quoteValue = document.getElementById('quoteOutputPrice').textContent;
 
-    fetch("https://formspree.io/f/https://formspree.io/f/meeyjpqb", {
+    fetch("https://formspree.io/f/meeyjpqb", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({ 
@@ -508,7 +508,7 @@ document.getElementById('quoteForm')?.addEventListener('submit', (e) => {
         totalQuotedPrice: finalBindingQuotePrice
     };
 
-    fetch("https://formspree.io/f/https://formspree.io/f/meeyjpqb", {
+    fetch("https://formspree.io/f/meeyjpqb", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify(quotePayload)
